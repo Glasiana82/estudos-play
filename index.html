@@ -20,7 +20,7 @@
 
     <div id="login-container">
         <h3>Login de Administrador</h3>
-        <input type="email" id="email" placeholder="E-mail (admin@sessao.com)" required>
+        <input type="email" id="email" placeholder="E-mail (    )" required>
         <input type="password" id="senha" placeholder="Senha (1234)" required>
         <button id="btn-login" onclick="fazerLogin()">ENTRAR</button>
         <p id="erro-login" style="color: red; display: none;">E-mail ou senha incorretos!</p>
@@ -59,34 +59,95 @@
         if (email === 'admin@sessao.com' && senha === '1234') {
             document.getElementById('login-container').style.display = 'none';
             document.getElementById('cadastro-container').style.display = 'block';
+            carregarFilmes();
         } else {
             erro.style.display = 'block';
         }
     }
 
-    function cadastrarFilme() {
-        const titulo = document.getElementById('titulo').value;
-        const ano = document.getElementById('ano').value;
-        const genero = document.getElementById('genero').value;
-        const diretor = document.getElementById('diretor').value;
+async function cadastrarFilme() {
 
-        if (titulo && ano && genero && diretor) {
-            const tabela = document.getElementById('tabela-filmes');
-            const novaLinha = tabela.insertRow();
+    const titulo = document.getElementById('titulo').value;
+    const ano = document.getElementById('ano').value;
+    const genero = document.getElementById('genero').value;
+    const diretor = document.getElementById('diretor').value;
 
-            novaLinha.innerHTML = `
-                <td>${titulo}</td>
-                <td>${ano}</td>
-                <td>${genero}</td>
-                <td>${diretor}</td>
-            `;
-
-            // Limpa os campos após cadastrar
-            document.querySelectorAll('#cadastro-container input').forEach(i => i.value = '');
-        } else {
-            alert('Por favor, preencha todos os campos do filme!');
-        }
+    if (!titulo || !ano || !genero || !diretor) {
+        alert('Por favor, preencha todos os campos!');
+        return;
     }
+
+    try {
+
+        const resposta = await fetch('http://localhost:3000/filmes', {
+
+            method: 'POST',
+
+            headers: {
+                'Content-Type': 'application/json'
+            },
+
+            body: JSON.stringify({
+                titulo,
+                ano,
+                genero,
+                diretor
+            })
+        });
+
+        const dados = await resposta.json();
+
+        alert(dados.mensagem);
+
+        // limpa os campos
+        document.getElementById('titulo').value = '';
+        document.getElementById('ano').value = '';
+        document.getElementById('genero').value = '';
+        document.getElementById('diretor').value = '';
+
+        // recarregar tabela
+        carregarFilmes(); // 👈 ADICIONE ESTA LINHA
+
+    } catch (erro) {
+
+        console.error(erro);
+
+        alert('Erro ao salvar filme');
+    }
+}
+
+async function carregarFilmes() {
+
+    try {
+
+        const resposta = await fetch('http://localhost:3000/filmes');
+
+        const filmes = await resposta.json();
+
+        const tabela = document.getElementById('tabela-filmes');
+
+        tabela.innerHTML = '';
+
+        filmes.forEach(filme => {
+
+            tabela.innerHTML += `
+                <tr>
+                    <td>${filme.titulo}</td>
+                    <td>${filme.ano}</td>
+                    <td>${filme.genero}</td>
+                    <td>${filme.diretor}</td>
+                </tr>
+            `;
+        });
+
+    } catch (erro) {
+
+        console.error(erro);
+
+        alert('Erro ao carregar filmes');
+    }
+}
+
 </script>
 
 </body>
