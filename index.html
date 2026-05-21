@@ -129,13 +129,12 @@ async function carregarFilmes() {
         tabela.innerHTML = '';
 
         filmes.forEach(filme => {
-
             tabela.innerHTML += `
                 <tr>
-                    <td>${filme.titulo}</td>
-                    <td>${filme.ano}</td>
-                    <td>${filme.genero}</td>
-                    <td>${filme.diretor}</td>
+                    <td>${filme.titulo || filme.Titulo}</td>
+                    <td>${filme.ano || filme.Ano}</td>
+                    <td>${filme.genero || filme.Genero}</td>
+                    <td>${filme.diretor || filme.Diretor}</td>
                 </tr>
             `;
         });
